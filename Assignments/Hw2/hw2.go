@@ -187,7 +187,7 @@ func main() {
 	t = 0
 	road.write_start(t, Vfile, Rfile)
 
-	defer timeTrack(time.Now(), "simulation and filesave")
+	defer timeTrack(time.Now(), "\nsimulation and filesave")
 	for t = 0; t <= .55; t += dt {
 		road.dRdt_rk2(dt)
 		road.writeVR(t, Vfile, Rfile)
