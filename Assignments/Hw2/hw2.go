@@ -29,8 +29,9 @@ func LinSpace(start, stop float64, n int32) []float64 {
 }
 
 func timeTrack(start time.Time, name string) {
-	elapsed := time.Since(start)
-	fmt.Printf("%s took %s ", name, elapsed)
+	elapsed := time.Since(start).Nanoseconds() / 1e6
+	fmt.Printf("%s took %d ms", name, elapsed)
+
 }
 
 type Highway struct {
@@ -88,11 +89,11 @@ func (way *Highway) D() { // calculate dF/dx and dR/dt
 
 func (way *Highway) dRdt_rk2(dt float64) {
 	copy(way.Rc, way.R)
-	way.D()                 // calculate F, dF/dx, dR/dt, using current R
-	way.updateVFR(0.5 * dt) // update R using dR/dt and half time step
-	way.D()                 // re-calculate F, dF/dx, dR/dt at the half time-step
+	way.D()                 // calculate dF/dx, dR/dt, using current R
+	way.updateVFR(0.5 * dt) // update R using dR/dt and half time step, recalculates V and F
+	way.D()                 // re-calculate dF/dx, dR/dt at the half time-step
 	copy(way.R, way.Rc)     // re-set the density to be at the beginning of the step
-	way.updateVFR(dt)       // update the density using the derivatives at the half step
+	way.updateVFR(dt)       // update the density using the derivatives at the half step, recalculate V and F for next caclulation
 }
 
 func (way *Highway) updateVFR(dt float64) {
@@ -167,7 +168,6 @@ func main() {
 	var t float64 = 0
 	road.write_start(t, Vfile, Rfile)
 
-	defer timeTrack(time.Now(), "simulation and filesave")
 	for t = 0; t <= .55; t += dt {
 		road.dRdt_rk2(dt)
 		road.writeVR(t, Vfile, Rfile)
@@ -187,7 +187,7 @@ func main() {
 	t = 0
 	road.write_start(t, Vfile, Rfile)
 
-	defer timeTrack(time.Now(), "simulation and filesave")
+	defer timeTrack(time.Now(), "Run B time")
 	for t = 0; t <= .55; t += dt {
 		road.dRdt_rk2(dt)
 		road.writeVR(t, Vfile, Rfile)
