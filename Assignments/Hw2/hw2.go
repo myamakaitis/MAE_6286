@@ -188,6 +188,7 @@ func main() {
 	road.write_start(t, Vfile, Rfile)
 
 	defer timeTrack(time.Now(), "Run B time")
+
 	for t = 0; t <= .55; t += dt {
 		road.dRdt_rk2(dt)
 		road.writeVR(t, Vfile, Rfile)
